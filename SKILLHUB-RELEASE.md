@@ -15,7 +15,7 @@
 ## 平台适配清单（每次打包必做）
 
 1. 以本仓库最新代码为源，构建干净的暂存目录（不含 `.git`、不含 `LICENSE`——平台白名单不允许无扩展名文件）
-2. 仓库内保持 `styles.json`（`.yaml` 不在平台文件白名单）
+2. 仓库内保持 `references/styles.json`（`.yaml` 不在平台文件白名单）
 3. 暂存目录 `SKILL.md` frontmatter：`name` 替换为发布名称、`description` 替换为上方简介（平台从 frontmatter 读取）
 4. zip 打包时 `SKILL.md` 必须位于压缩包根目录
 5. 上传前用官方 CLI 校验包：`redskillhub-upload publish <zip> --dry-run --agent --source original --tag "效率工具,内容创作" --identifier wise-image-flow`
@@ -23,12 +23,21 @@
 ## 打包命令参考
 
 ```bash
-STAGE=~/Desktop/wise-image-flow
-rsync -a --exclude '.git' /Users/wisewong/Documents/Developer/wise-image-flow/ "$STAGE"/
-rm -f "$STAGE/LICENSE"
+SOURCE_DIR=/Users/wisewong/Documents/Developer/wise-image-flow
+STAGE_DIR="$(mktemp -d)"
+rsync -a --prune-empty-dirs \
+  --include '/SKILL.md' \
+  --include '/references/' --include '/references/***' \
+  --include '/scripts/' --include '/scripts/***' \
+  --exclude '*' \
+  "$SOURCE_DIR/" "$STAGE_DIR/"
 # 替换 frontmatter name/description 为本档案的发布名称与简介
-cd "$STAGE" && zip -r -X ~/Desktop/配图工作流-wise-image-flow.zip . -x "*.DS_Store"
+cd "$STAGE_DIR" && zip -r -X ~/Desktop/配图工作流-wise-image-flow.zip .
+cd "$SOURCE_DIR"
+rm -r "$STAGE_DIR"
 ```
+
+白名单之外的 README、docs、LICENSE、`SKILLHUB-RELEASE.md`、`skill.json`、`.metadata.json` 和市场配置文件都不进入上传包。`scripts/` 内只允许放用户运行时脚本；发布辅助脚本若新增，应放在仓库级 `tools/`。
 
 ## 真实发布命令（CLI 通道，需用户明确说「提交」）
 
@@ -113,12 +122,12 @@ printf 'submit\n' | redskillhub-upload publish ~/Desktop/配图工作流-wise-im
 
 | 阶段 | 名称 | 目标 | 详细文件 |
 |---|---|---|---|
-| 1 | 需求澄清 | 需求分析：内容/场景/受众/字多字少 | `stages/01-brief.md` |
-| 2 | 配图规划 | 内容拆解（几张/每张讲啥/用啥模板） | `stages/02-plan.md` |
-| **2.5** | **风格选择** | **展示 10 种风格表，必须等用户明确选择** | `stages/02-plan.md` 2D 节 |
-| 3 | 文案定稿 | 逐字定稿"图上写什么" | `stages/03-copy.md` |
-| 4 | 提示词封装 | 把文案封装成可复制提示词 | `stages/04-prompts.md` |
-| 5 | 迭代润色 | 减字、换隐喻、提可读性 | `stages/05-iterate.md` |
+| 1 | 需求澄清 | 需求分析：内容/场景/受众/字多字少 | `references/stages/01-brief.md` |
+| 2 | 配图规划 | 内容拆解（几张/每张讲啥/用啥模板） | `references/stages/02-plan.md` |
+| **2.5** | **风格选择** | **展示 10 种风格表，必须等用户明确选择** | `references/stages/02-plan.md` 2D 节 |
+| 3 | 文案定稿 | 逐字定稿"图上写什么" | `references/stages/03-copy.md` |
+| 4 | 提示词封装 | 把文案封装成可复制提示词 | `references/stages/04-prompts.md` |
+| 5 | 迭代润色 | 减字、换隐喻、提可读性 | `references/stages/05-iterate.md` |
 
 ### PPT 模式（3 阶段）
 

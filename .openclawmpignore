@@ -1,0 +1,5 @@
+# openclawmp publish 排除项（阶跃水产市场）
+# .git / node_modules / .DS_Store / .assetid 由 CLI 自动忽略
+docs/
+SKILLHUB-RELEASE.md
+skill.json
